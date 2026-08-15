@@ -1,122 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
-function App() {
-  const [count, setCount] = useState(0)
+const BACKEND_URL = "http://localhost:3000";
+
+const App = () => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [attacks, setAttacks] = useState([]);
+
+  useEffect(() => {
+    const socket = io(BACKEND_URL);
+
+    socket.on('connect', () => {
+      setIsConnected(true);
+      console.log('Connected:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+   
+    socket.on('new-attack', (data) => {
+      setAttacks((prev) => [data, ...prev].slice(0, 15)); 
+    });
+
+    
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{ backgroundColor: '#0f0f11', color: '#ffffff', minHeight: '100vh', padding: '24px', fontFamily: 'monospace' }}>
+      <h1>Cyber Threat Monitoring System</h1>
+      
+      {/* Network Status Badge */}
+      <div style={{ margin: '16px 0' }}>
+        Status:{' '}
+        <span style={{ color: isConnected ? '#4caf50' : '#f44336', fontWeight: 'bold' }}>
+          {isConnected ? '● ACTIVE STREAMING' : '○ DISCONNECTED'}
+        </span>
+      </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
+      {/* Raw Data List Area */}
+      <div style={{ border: '1px solid #333', borderRadius: '6px', padding: '16px', background: '#16161a' }}>
+        <h3>Incoming Attack Stream Logs</h3>
+        {attacks.length === 0 ? (
+          <p style={{ color: '#666' }}>Awaiting payload synchronization...</p>
+        ) : (
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {attacks.map((item, i) => (
+              <li key={i} style={{ borderBottom: '1px solid #222', padding: '8px 0', fontSize: '14px' }}>
+                ⚡ [<span style={{ color: '#ff9800' }}>{item.threatLevel}</span>] 
+                LAT: {item.sourceLat.toFixed(2)} LNG: {item.sourceLng.toFixed(2)} → 
+                TARGET: {item.targetLat.toFixed(2)}, {item.targetLng.toFixed(2)}
+              </li>
+            ))}
           </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        )}
+      </div>
+    </div>
+  );
+};
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
-
-export default App
+export default App;
