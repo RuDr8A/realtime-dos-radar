@@ -33,16 +33,20 @@ async function startServer() {
     });
 
     
+    
     setInterval(() => {
-        
         if (io.sockets.sockets.size > 0) {
-            const newAttack = mockGenerator();
-            io.emit("new-attack", newAttack); 
-            console.log(`Broadcasting attack to ${io.sockets.sockets.size} clients...`, newAttack.threatLevel);
-        } else {
-            console.log("Stream idle: No clients connected.");
+            
+            const burstSize = Math.floor(Math.random() * 6) + 3; 
+            
+            for (let i = 0; i < burstSize; i++) {
+                const newAttack = mockGenerator();
+                io.emit("new-attack", newAttack); 
+            }
+            
+            console.log(`🧨 BURST FIRED: ${burstSize} simultaneous attacks broadcasted.`);
         }
-    }, 2000);
+    }, 400); 
 
   } catch (error) {
     console.error("Critical: Server failed to start:", error.message);
