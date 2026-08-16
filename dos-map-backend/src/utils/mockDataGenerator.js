@@ -1,10 +1,10 @@
 function mockGenerator() {
+
     
-    // Source and target latitude 
     const sourceLat = Number((Math.random() * 180 - 90).toFixed(4));
     const targetLat = Number((Math.random() * 180 - 90).toFixed(4));
 
-    // Source and target longitude 
+    
     const sourceLng = Number((Math.random() * 360 - 180).toFixed(4));
     const targetLng = Number((Math.random() * 360 - 180).toFixed(4));
 

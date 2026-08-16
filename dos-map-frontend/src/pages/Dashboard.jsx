@@ -1,5 +1,6 @@
 import { useSocket } from '../context/SocketContext';
 import ThreatGlobe from '../components/ThreatGlobe';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { isConnected, attacks } = useSocket();
@@ -10,9 +11,18 @@ const Dashboard = () => {
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1>Global Threat Map</h1>
-        <div style={{ color: isConnected ? '#4caf50' : '#f44336', fontWeight: 'bold', padding: '8px 16px', border: `1px solid ${isConnected ? '#4caf50' : '#f44336'}`, borderRadius: '4px' }}>
-          {isConnected ? '● ACTIVE STREAMING' : '○ DISCONNECTED'}
+        
+        
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <Link to="/analytics" style={{ color: '#ff9800', textDecoration: 'none', border: '1px solid #ff9800', padding: '8px 16px', borderRadius: '4px' }}>
+            View Analytics →
+          </Link>
+          
+          <div style={{ color: isConnected ? '#4caf50' : '#f44336', fontWeight: 'bold', padding: '8px 16px', border: `1px solid ${isConnected ? '#4caf50' : '#f44336'}`, borderRadius: '4px' }}>
+            {isConnected ? '● ACTIVE STREAMING' : '○ DISCONNECTED'}
+          </div>
         </div>
+
       </div>
 
       

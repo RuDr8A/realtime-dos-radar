@@ -51,7 +51,7 @@ const ThreatGlobe = ({ attacks }) => {
         arcsTransitionDuration={0} 
         
         
-        width={700}
+        width={1114}
         height={700}
       />
     </div>
