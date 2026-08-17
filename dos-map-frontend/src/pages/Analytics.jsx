@@ -4,7 +4,7 @@ import { Bar } from 'react-chartjs-2';
 import { Link } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext'; // Import socket for the sidebar status
 
-// Register Chart.js components
+
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const Analytics = () => {
@@ -19,12 +19,12 @@ const Analytics = () => {
         const labels = data.map(item => item._id);
         const counts = data.map(item => item.count);
 
-        // Dynamically color the bars to match your exact Tailwind theme
+        
         const backgroundColors = labels.map(label => {
-            if (label === 'CRITICAL') return '#ffb4ab'; // Tailwind text-error
-            if (label === 'HIGH') return '#ffc081';     // Tailwind text-primary
-            if (label === 'MEDIUM') return '#ffb870';   // Tailwind text-surface-tint
-            if (label === 'LOW') return '#78dc77';      // Tailwind text-secondary
+            if (label === 'CRITICAL') return '#ffb4ab'; 
+            if (label === 'HIGH') return '#ffc081';     
+            if (label === 'MEDIUM') return '#ffb870';   
+            if (label === 'LOW') return '#78dc77';    
             return '#a38d7a';
         });
 
@@ -35,7 +35,7 @@ const Analytics = () => {
               label: 'Total Attacks Recorded',
               data: counts,
               backgroundColor: backgroundColors,
-              borderColor: '#201f21', // Matches surface-container
+              borderColor: '#201f21', 
               borderWidth: 2,
             },
           ],

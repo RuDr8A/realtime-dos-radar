@@ -25,7 +25,6 @@ async function startServer() {
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}....`);
     });
-
     io.on("connection", (socket) => {
         console.log(` New client connected: ${socket.id}`);
         socket.on("disconnect", () => console.log(` Client disconnected: ${socket.id}`));
@@ -37,15 +36,10 @@ async function startServer() {
     
     setInterval(() => {
         if (io.sockets.sockets.size > 0) {
-            const burstSize = Math.floor(Math.random() * 6) + 3; 
-            
+            const burstSize = Math.floor(Math.random() * 6) + 3;
             for (let i = 0; i < burstSize; i++) {
                 const newAttack = mockGenerator();
-                
-                
                 io.emit("new-attack", newAttack); 
-                
-                
                 attackBuffer.push(newAttack);
             }
         }
@@ -54,12 +48,9 @@ async function startServer() {
    
     setInterval(async () => {
         if (attackBuffer.length > 0) {
-            
             const batchToSave = [...attackBuffer];
             attackBuffer = []; 
-
             try {
-                
                 await Attack.insertMany(batchToSave);
                 console.log(`💾 BATCH SAVED: Successfully wrote ${batchToSave.length} attacks to MongoDB.`);
             } catch (error) {
