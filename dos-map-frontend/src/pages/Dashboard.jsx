@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSocket } from '../context/SocketContext';
 import ThreatGlobe from '../components/ThreatGlobe';
 import { Link } from 'react-router-dom';
@@ -16,9 +17,23 @@ const Dashboard = () => {
     }
   };
 
+  
+  const stats = useMemo(() => {
+    const total = attacks.length || 1; // Prevent division by zero
+    const critical = attacks.filter(a => a.threatLevel === 'CRITICAL').length;
+    const high = attacks.filter(a => a.threatLevel === 'HIGH').length;
+    const medium = attacks.filter(a => a.threatLevel === 'MEDIUM').length;
+
+    return {
+      totalRealTime: attacks.length,
+      critPct: Math.round((critical / total) * 100),
+      highPct: Math.round((high / total) * 100),
+      medPct: Math.round((medium / total) * 100),
+    };
+  }, [attacks]);
+
   return (
     <div className="bg-background font-body-base text-on-background min-h-screen">
-      
       
       <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-low border-r border-outline-variant z-50 flex flex-col pt-lg">
         <div className="px-lg mb-xl flex items-center gap-sm">
@@ -53,11 +68,11 @@ const Dashboard = () => {
           <div className="flex items-center gap-xl">
             <div className="flex flex-col">
               <span className="text-badge-caps text-on-surface-variant uppercase">Threat Vol</span>
-              <span className="font-telemetry-code text-error text-[16px]">{attacks.length > 0 ? 'HIGH' : 'LOW'}</span>
+              <span className="font-telemetry-code text-error text-[16px]">{attacks.length > 0 ? 'LIVE' : 'AWAITING'}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-badge-caps text-on-surface-variant uppercase">Stream Rate</span>
-              <span className="font-telemetry-code text-primary text-[16px]">~15 evt/sec</span>
+              <span className="text-badge-caps text-on-surface-variant uppercase">Active IOCs</span>
+              <span className="font-telemetry-code text-primary text-[16px]">{stats.totalRealTime} Nodes</span>
             </div>
           </div>
           <div className="flex items-center gap-lg">
@@ -67,12 +82,10 @@ const Dashboard = () => {
           </div>
         </header>
 
-        
         <main className="relative pt-24 bg-background min-h-screen p-xl">
           <div className="flex flex-col w-full h-full gap-xl">
             
             <div className="grid grid-cols-12 gap-xl flex-1">
-              
               
               <div className="col-span-12 xl:col-span-4 flex flex-col bg-surface-container rounded-lg relative overflow-hidden min-h-[500px]">
                 <div className="absolute inset-0 border border-outline-variant rounded-lg pointer-events-none"></div>
@@ -126,37 +139,43 @@ const Dashboard = () => {
                   </div>
                   <div className="p-md flex flex-col gap-md">
                     
+                    
                     <div className="flex flex-col gap-xs">
                       <div className="flex justify-between items-center font-telemetry-code text-[12px]">
-                        <span className="text-on-surface">CRITICAL_LEVEL</span><span className="text-error">98% SEV</span>
+                        <span className="text-on-surface">CRITICAL_LEVEL</span>
+                        <span className="text-error">{stats.critPct}% SEV</span>
                       </div>
                       <div className="h-[4px] w-full bg-surface-container-highest rounded-full overflow-hidden">
-                        <div className="h-full bg-error w-[98%]"></div>
+                        <div className="h-full bg-error transition-all duration-500" style={{ width: `${stats.critPct}%` }}></div>
                       </div>
                     </div>
 
+                    
                     <div className="flex flex-col gap-xs">
                       <div className="flex justify-between items-center font-telemetry-code text-[12px]">
-                        <span className="text-on-surface">HIGH_LEVEL</span><span className="text-primary">74% SEV</span>
+                        <span className="text-on-surface">HIGH_LEVEL</span>
+                        <span className="text-primary">{stats.highPct}% SEV</span>
                       </div>
                       <div className="h-[4px] w-full bg-surface-container-highest rounded-full overflow-hidden">
-                        <div className="h-full bg-primary w-[74%]"></div>
+                        <div className="h-full bg-primary transition-all duration-500" style={{ width: `${stats.highPct}%` }}></div>
                       </div>
                     </div>
 
+                    
                     <div className="flex flex-col gap-xs">
                       <div className="flex justify-between items-center font-telemetry-code text-[12px]">
-                        <span className="text-on-surface">MEDIUM_LEVEL</span><span className="text-surface-tint">42% SEV</span>
+                        <span className="text-on-surface">MEDIUM_LEVEL</span>
+                        <span className="text-surface-tint">{stats.medPct}% SEV</span>
                       </div>
                       <div className="h-[4px] w-full bg-surface-container-highest rounded-full overflow-hidden">
-                        <div className="h-full bg-surface-tint w-[42%]"></div>
+                        <div className="h-full bg-surface-tint transition-all duration-500" style={{ width: `${stats.medPct}%` }}></div>
                       </div>
                     </div>
 
                   </div>
                 </div>
 
-                
+               
                 <div className="bg-surface-container rounded-lg relative overflow-hidden flex flex-col">
                   <div className="absolute inset-0 border border-outline-variant rounded-lg pointer-events-none"></div>
                   <div className="p-md border-b border-outline-variant">
@@ -178,57 +197,6 @@ const Dashboard = () => {
 
               </div>
             </div>
-
-            
-            <div className="h-48 grid grid-cols-1 xl:grid-cols-3 gap-xl mt-4">
-              <div className="bg-surface-container rounded-lg relative overflow-hidden flex flex-col p-md border border-outline-variant/30">
-                <div className="flex justify-between items-start mb-sm">
-                  <div className="flex flex-col">
-                    <span className="font-badge-caps text-outline uppercase">REQ_PER_SEC</span>
-                    <span className="font-bold text-on-surface text-[24px]">45,291</span>
-                  </div>
-                  <span className="text-error font-telemetry-code text-[12px]">+12.4%</span>
-                </div>
-                <div className="flex-1 w-full relative">
-                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                    <path className="text-primary" d="M0 30 Q 10 20, 20 25 T 40 15 T 60 35 T 80 10 T 100 20" fill="none" stroke="currentColor" strokeWidth="2"></path>
-                    <path className="text-primary/10" d="M0 30 Q 10 20, 20 25 T 40 15 T 60 35 T 80 10 T 100 20 L 100 40 L 0 40 Z" fill="currentColor"></path>
-                  </svg>
-                </div>
-              </div>
-
-              <div className="bg-surface-container rounded-lg relative overflow-hidden flex flex-col p-md border border-outline-variant/30">
-                <div className="flex justify-between items-start mb-sm">
-                  <div className="flex flex-col">
-                    <span className="font-badge-caps text-outline uppercase">BANDWIDTH_GBPS</span>
-                    <span className="font-bold text-on-surface text-[24px]">14.2</span>
-                  </div>
-                  <span className="text-secondary font-telemetry-code text-[12px]">-2.1%</span>
-                </div>
-                <div className="flex-1 w-full relative">
-                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                    <path className="text-secondary" d="M0 10 Q 15 30, 30 15 T 50 25 T 70 5 T 85 20 T 100 10" fill="none" stroke="currentColor" strokeWidth="2"></path>
-                    <path className="text-secondary/10" d="M0 10 Q 15 30, 30 15 T 50 25 T 70 5 T 85 20 T 100 10 L 100 40 L 0 40 Z" fill="currentColor"></path>
-                  </svg>
-                </div>
-              </div>
-
-              <div className="bg-surface-container rounded-lg relative overflow-hidden flex flex-col p-md border border-outline-variant/30">
-                <div className="flex justify-between items-start mb-sm">
-                  <div className="flex flex-col">
-                    <span className="font-badge-caps text-outline uppercase">PKT_DROP_RATE</span>
-                    <span className="font-bold text-on-surface text-[24px]">0.04%</span>
-                  </div>
-                  <span className="text-outline font-telemetry-code text-[12px]">STABLE</span>
-                </div>
-                <div className="flex-1 w-full relative">
-                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                    <path className="text-outline" d="M0 35 L 20 36 L 40 34 L 60 38 L 80 35 L 100 36" fill="none" stroke="currentColor" strokeWidth="2"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
           </div>
         </main>
       </div>
